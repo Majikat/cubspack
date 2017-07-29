@@ -9,7 +9,7 @@ import rectpack.packer as packer
 
 def random_rectangle(max_side, min_side):
     width = random.randint(min_side, max_side)
-    height = random.randint(min_side, max_side)     
+    height = random.randint(min_side, max_side)
     return (width, height)
 
 
@@ -154,4 +154,3 @@ class TestCollisions(TestCase):
         self.setup_packer(g)
         g.pack()
         g.validate_packing()
-

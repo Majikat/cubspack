@@ -1,38 +1,44 @@
+# -*- coding: utf-8 -*-
+
 import collections
-import itertools
-import operator
+from cubspack.geometry import Cuboid
+from cubspack.geometry import HSegment
+from cubspack.geometry import Point as P
+from cubspack.pack_algo import PackingAlgorithm
+from cubspack.waste import WasteManager
 import heapq
-import copy
-from .pack_algo import PackingAlgorithm
-from .geometry import Point as P
-from .geometry import HSegment, Rectangle
-from .waste import WasteManager
+import operator
 
 
 class Skyline(PackingAlgorithm):
-    """ Class implementing Skyline algorithm as described by
+    """Skyline algorithm
+
+    Class implementing Skyline algorithm as described by
     Jukka Jylanki - A Thousand Ways to Pack the Bin (February 27, 2010)
 
     _skyline:  stores all the segments at the top of the skyline.
     _waste: Handles all wasted sections.
     """
 
-    def __init__(self, width, height, rot=True, *args, **kwargs):
-        """
-        _skyline is the list used to store all the skyline segments, each 
-        one is a list with the format [x, y, width] where x is the x
+    def __init__(self, width, height, depth, rot=True, *args, **kwargs):
+        """Definition
+
+        _skyline is the list used to store all the skyline segments, each
+        one is a list with the format [x, y, z, width] where x is the x
         coordinate of the left most point of the segment, y the y coordinate
-        of the segment, and width the length of the segment. The initial 
-        segment is allways [0, 0, surface_width]
-        
+        of the segment, z the z coordinate of the segment and width the length
+        of the segment. The initial segment is allways [0, 0, 0, surface_width]
+
         Arguments:
-            width (int, float): 
+            width (int, float):
             height (int, float):
-            rot (bool): Enable or disable rectangle rotation
+            depth (int, float):
+            rot (bool): Enable or disable cuboid rotation
         """
         self._waste_management = False
         self._waste = WasteManager(rot=rot)
-        super(Skyline, self).__init__(width, height, rot, merge=False, *args, **kwargs)
+        super(Skyline, self).__init__(
+            width, height, depth, rot, merge=False, *args, **kwargs)
 
     def _placement_points_generator(self, skyline, width):
         """Returns a generator for the x coordinates of all the placement
@@ -40,14 +46,14 @@ class Skyline(PackingAlgorithm):
 
         WARNING: In some cases could be duplicated points, but it is faster
         to compute them twice than to remove them.
-        
+
         Arguments:
             skyline (list): Skyline HSegment list
             width (int, float): Rectangle width
 
         Returns:
             generator
-        """ 
+        """
         skyline_r = skyline[-1].right
         skyline_l = skyline[0].left
 
@@ -61,8 +67,7 @@ class Skyline(PackingAlgorithm):
         return heapq.merge(ppointsl, ppointsr)
 
     def _generate_placements(self, width, height):
-        """
-        Generate a list with 
+        """Generate a list with
 
         Arguments:
             skyline (list): SkylineHSegment list
@@ -72,7 +77,7 @@ class Skyline(PackingAlgorithm):
             tuple (Rectangle, fitness):
                 Rectangle: Rectangle in valid position
                 left_skyline: Index for the skyline under the rectangle left edge.
-                right_skyline: Index for the skyline under the rectangle right edte.
+                right_skyline: Index for the skyline under the rectangle right edge.
         """
         skyline = self._skyline
 
